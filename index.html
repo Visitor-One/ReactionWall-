@@ -128,10 +128,10 @@ background:#080c12cc;color:#b9c4d3;border-radius:12px;padding:8px 12px;font-weig
 
         <label>SPIELFELD</label>
         <div class="choiceRow">
-          <button class="opt grid" data-r="3" data-c="3">3 × 3</button>
-          <button class="opt grid selected" data-r="4" data-c="4">4 × 4</button>
-          <button class="opt grid" data-r="4" data-c="5">4 × 5</button>
-          <button class="opt grid" data-r="5" data-c="6">5 × 6</button>
+          <button class="opt grid" data-short="3" data-long="3">3 × 3</button>
+          <button class="opt grid selected" data-short="4" data-long="4">4 × 4</button>
+          <button class="opt grid" data-short="4" data-long="5">4 × 5</button>
+          <button class="opt grid" data-short="5" data-long="6">5 × 6</button>
         </div>
 
         <div id="timeSetting" style="display:none">
@@ -264,9 +264,18 @@ $$(".mode").forEach(b=>b.onclick=()=>{
   $("#timeSetting").style.display=cfg.mode==="time"?"block":"none";
   $("#countSetting").style.display=cfg.mode==="count"?"block":"none";
 });
+function applySelectedGrid(){
+  const b=$(".grid.selected");
+  if(!b)return;
+  const a=+b.dataset.short, z=+b.dataset.long;
+  const portrait=window.innerHeight>=window.innerWidth;
+  cfg.rows=portrait?z:a;
+  cfg.cols=portrait?a:z;
+  buildWall();
+}
 $$(".grid").forEach(b=>b.onclick=()=>{
   $$(".grid").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");
-  cfg.rows=+b.dataset.r;cfg.cols=+b.dataset.c;buildWall();
+  applySelectedGrid();
 });
 $("#timeRange").oninput=e=>{cfg.time=+e.target.value;$("#timeVal").textContent=cfg.time};
 $("#countRange").oninput=e=>{cfg.count=+e.target.value;$("#countVal").textContent=cfg.count};
@@ -274,8 +283,8 @@ $("#reactionRange").oninput=e=>{cfg.reaction=+e.target.value;$("#reactionVal").t
 $("#startBtn").onclick=start;$("#stopBtn").onclick=finish;
 $("#againBtn").onclick=()=>{$("#result").classList.remove("show");$("#setup").style.display="block";start()};
 $("#menuBtn").onclick=()=>{$("#result").classList.remove("show");$("#setup").style.display="block"};
-window.addEventListener("resize",()=>{ if(!playing) buildWall(); });
-buildWall();updateStats();
+window.addEventListener("resize",()=>{ applySelectedGrid(); });
+applySelectedGrid();updateStats();
 </script>
 </body>
 </html>
