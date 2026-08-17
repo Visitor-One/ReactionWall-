@@ -34,7 +34,10 @@ border:1px solid #263241;box-shadow:inset 0 1px 0 #ffffff0d,0 5px 15px #0007}
 #wallWrap{position:relative;flex:1;min-height:0;border-radius:22px;padding:clamp(10px,2vmin,18px);
 background:linear-gradient(145deg,#111823,#080c12);border:1px solid #283443;
 box-shadow:inset 0 0 45px #000b,0 18px 45px #0009;overflow:hidden}
-#wall{width:100%;height:100%;display:grid;gap:var(--gap);perspective:900px}
+#wall{
+  width:100%;height:100%;display:grid;gap:var(--gap);perspective:900px;
+  align-content:center;justify-content:center;
+}
 .tile{
   position:relative;border:0;border-radius:clamp(10px,2.2vmin,20px);padding:0;cursor:pointer;
   background:linear-gradient(145deg,#202a36,#0b1017 62%);
@@ -175,8 +178,14 @@ let hits=0, misses=0, reactions=[], completed=0, deadline=0, last=-1;
 
 function buildWall(){
   wall.innerHTML="";
-  wall.style.gridTemplateColumns=`repeat(${cfg.cols},1fr)`;
-  wall.style.gridTemplateRows=`repeat(${cfg.rows},1fr)`;
+  const gap=parseFloat(getComputedStyle(wall).gap)||10;
+  const w=wall.clientWidth, h=wall.clientHeight;
+  const cell=Math.max(20,Math.floor(Math.min(
+    (w-gap*(cfg.cols-1))/cfg.cols,
+    (h-gap*(cfg.rows-1))/cfg.rows
+  )));
+  wall.style.gridTemplateColumns=`repeat(${cfg.cols},${cell}px)`;
+  wall.style.gridTemplateRows=`repeat(${cfg.rows},${cell}px)`;
   for(let i=0;i<cfg.rows*cfg.cols;i++){
     let b=document.createElement("button"); b.className="tile"; b.dataset.i=i;
     b.addEventListener("pointerdown",()=>tap(i,b));
@@ -265,6 +274,7 @@ $("#reactionRange").oninput=e=>{cfg.reaction=+e.target.value;$("#reactionVal").t
 $("#startBtn").onclick=start;$("#stopBtn").onclick=finish;
 $("#againBtn").onclick=()=>{$("#result").classList.remove("show");$("#setup").style.display="block";start()};
 $("#menuBtn").onclick=()=>{$("#result").classList.remove("show");$("#setup").style.display="block"};
+window.addEventListener("resize",()=>{ if(!playing) buildWall(); });
 buildWall();updateStats();
 </script>
 </body>
